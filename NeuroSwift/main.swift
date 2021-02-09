@@ -43,12 +43,13 @@ struct Perceptron {
     }
     
     static func trainSet(trainingFactor: Double, inputMatrix: [[Double]], targetOutputs: [Double], neuron: Neuron, withBias: Double) -> Neuron {
-        if inputMatrix.count == 1 {
-            return neuron
-        }
         let trainedNeuron = trainOne(trainingFactor: trainingFactor, inputVector: inputMatrix[0], targetOutput: targetOutputs[0], neuron: neuron, bias: withBias)
+        if inputMatrix.count == 1 {
+            return trainedNeuron
+        }
         return trainSet(trainingFactor: trainingFactor, inputMatrix: Array(inputMatrix[1...]), targetOutputs: Array(targetOutputs[1...]), neuron: trainedNeuron, withBias: withBias)
     }
+    
     //MARK: - Public Functions
     
     static func neuron(inputsCount: Int) -> Neuron {
@@ -63,10 +64,10 @@ struct Perceptron {
     }
     
     static func trainNeuron(n: Int, trainingFactor: Double, inputMatrix: [[Double]], targetOutputs: [Double], neuron: Neuron, withBias: Double) -> Neuron {
-        if n == 0 {
-            return neuron
-        }
         let trainedNeuron = trainSet(trainingFactor: trainingFactor, inputMatrix: inputMatrix, targetOutputs: targetOutputs, neuron: neuron, withBias: withBias)
+        if n == 1 {
+            return trainedNeuron
+        }
         return trainNeuron(n: n-1, trainingFactor: trainingFactor, inputMatrix: inputMatrix, targetOutputs: targetOutputs, neuron: trainedNeuron, withBias: withBias)
     }
 }
