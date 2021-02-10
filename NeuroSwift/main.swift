@@ -19,7 +19,7 @@ struct Perceptron {
     }
     
     static private func getWeightedAndBiasedSum(for neuron: Neuron, inputVector: [Double], bias: Double) -> Double {
-        let weightedVector: [Double] = zipWith(neuron, inputVector, fn: *)
+        let weightedVector: [Double] = zipWith(neuron, [-1]+inputVector, fn: *)
         return weightedVector.reduce(0, +) + bias
     }
     
@@ -35,15 +35,15 @@ struct Perceptron {
         inputWeight - trainingFactor * resultDifference * inputElement
     }
     
-    static func trainOne(trainingFactor: Double, inputVector: [Double], targetOutput: Double, neuron: Neuron, bias: Double) -> Neuron {
+    static func trainVector(trainingFactor: Double, inputVector: [Double], targetOutput: Double, neuron: Neuron, bias: Double) -> Neuron {
         let resulDifference = classifyWithSigmoid(neuron: neuron, inputVector: inputVector, withBias: bias) - targetOutput
-        return zipWith(neuron, inputVector) { weight, element in
+        return zipWith(neuron, [-1]+inputVector) { weight, element in
             backpropagateWeight(with: trainingFactor, with: resulDifference, inputWeight: weight, inputElement: element)
         }
     }
     
     static func trainSet(trainingFactor: Double, inputMatrix: [[Double]], targetOutputs: [Double], neuron: Neuron, withBias: Double) -> Neuron {
-        let trainedNeuron = trainOne(trainingFactor: trainingFactor, inputVector: inputMatrix[0], targetOutput: targetOutputs[0], neuron: neuron, bias: withBias)
+        let trainedNeuron = trainVector(trainingFactor: trainingFactor, inputVector: inputMatrix[0], targetOutput: targetOutputs[0], neuron: neuron, bias: withBias)
         if inputMatrix.count == 1 {
             return trainedNeuron
         }
@@ -53,7 +53,7 @@ struct Perceptron {
     //MARK: - Public Functions
     
     static func neuron(inputsCount: Int) -> Neuron {
-        Array(repeating: Double.random(in: 0.01...0.1), count: inputsCount)
+        Array(repeating: Double.random(in: 1.0...3.0), count: inputsCount+1)
     }
     
     static func classifyWithSigmoid(neuron: Neuron, inputVector: [Double], withBias: Double, showSigmoidResult: Bool = false) -> Double {
@@ -73,17 +73,17 @@ struct Perceptron {
 }
 
 // f(x) = 5x - 25
-let trainingDataset: [[Double]] = [[-40], [1], [3], [9]]
-let targetOutputs = [0.0, 0.0, 0.0, 1.0]
+let trainingDataset: [[Double]] = [[-40], [9]]
+let targetOutputs = [0.0, 1.0]
 
 let defaultBasis: Double = 0
 let showResult = true
-let n = 10
+let n = 100
+let inputVectorLength = 2
 
-let baseNeuron = Perceptron.neuron(inputsCount: 1)
+let baseNeuron = Perceptron.neuron(inputsCount: inputVectorLength)
 
 let trainedNeuronSet = Perceptron.trainNeuron(n: n, trainingFactor: 0.01, inputMatrix: trainingDataset, targetOutputs: targetOutputs, neuron: baseNeuron, withBias: defaultBasis)
 
 print(Perceptron.classifyWithSigmoid(neuron: trainedNeuronSet, inputVector: [-22.0], withBias: defaultBasis, showSigmoidResult: showResult)) // 0
 print(Perceptron.classifyWithSigmoid(neuron: trainedNeuronSet, inputVector: [6.0], withBias: defaultBasis, showSigmoidResult: showResult)) // 1
-
